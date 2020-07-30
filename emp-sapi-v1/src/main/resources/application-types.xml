@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="response" format="json">
+      <types:shape format="weave" example="examples/JsonExampleResponseFile-1.json"><![CDATA[%dw 2.0
+
+type response = {|
+  emp_id: Number {"typeId": "int"}, 
+  emp_name: String, 
+  emp_status: String
+|} {"example": "{\\\"emp_id\\\":1,\\\"emp_name\\\":\\\"\\\",\\\"emp_status\\\":\\\"\\\"}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="responseArray" format="json">
+      <types:shape format="weave" example="examples/JsonExampleResponseFileArray.json"><![CDATA[%dw 2.0
+
+type responseArray = Array<{|  emp_id: Number {"typeId": "int"},   emp_name: String,   emp_status: String|}> {"example": "[{\\\"emp_id\\\":1,\\\"emp_name\\\":\\\"\\\",\\\"emp_status\\\":\\\"\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#35aac2df-01b9-44a1-bc93-5ff5e99a0db7">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="response"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#15c57f8d-af4a-4c5c-ab90-642b0b6c8085">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="responseArray"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

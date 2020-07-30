@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="update-employeeFlow" doc:id="5068b36e-c40a-4bd3-aaec-18fe8b0a73d2" >
+		<http:listener doc:name="Update Employee Listener" doc:id="7fa3c40b-5db0-486e-be73-646228e0e7d0" config-ref="Emp_SAPI_HTTP_Listener_config" path="update-employee" outputMimeType="application/xml" allowedMethods="POST"/>
+		<logger level="INFO" doc:name="Update Employee Entry Logger" doc:id="a6fe98fa-b3d0-467e-885e-f28625b1365e" message="Started the emp update flow  and the payload is : #[payload]"/>
+		<db:update doc:name="Update" doc:id="06555f3d-8f2e-47c5-b969-1c00dd67df82" config-ref="Database_Config">
+			<db:sql ><![CDATA[update emp set emp_status =:empstatus where emp_id =:empid]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	empstatus: payload.emp.status,
+	empid:payload.emp.empid
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Response Message" doc:id="bdd1c9fa-5a13-4afc-a9bd-dea1956bbd70" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+{
+	"response":{
+		"status":200,
+		"message":"success" 
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="fetch-employeesFlow" doc:id="7dfd1b4b-da0a-4d1d-a28a-e3fc82bc1d09" >
+		<http:listener doc:name="Listener to fetch multiple objects" doc:id="488e8efc-2bb2-44ce-9b06-1e6fb4a8fc3c" config-ref="Emp_SAPI_HTTP_Listener_config" allowedMethods="GET" path="fetch-employees"/>
+		<logger level="INFO" doc:name="Logger" doc:id="5cc8730c-ef24-41fa-adbe-82116396e20d" message="fetching all the employees"/>
+		<db:select doc:name="Select All the employees" doc:id="0dc0dbe1-3514-4486-9190-4725dd1e5b15" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from emp]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="15c57f8d-af4a-4c5c-ab90-642b0b6c8085" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	emp_id: payload01.EMP_ID default 0,
+	emp_name: payload01.EMP_NAME default "",
+	emp_status: payload01.EMP_STATUS default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

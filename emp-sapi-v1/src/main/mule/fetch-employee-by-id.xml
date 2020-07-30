@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="fetch-employee-by-idFlow" doc:id="fe9604e7-0464-4e24-a6bc-f216e340587e" >
+		<http:listener doc:name="Fetch Employee By ID Listener" doc:id="c070a374-c71a-4da6-8efa-4dd3b0c3b4ee" config-ref="Emp_SAPI_HTTP_Listener_config" path="fetch-employee" allowedMethods="GET"/>
+		<logger level="INFO" doc:name="Logger" doc:id="4f215f62-84d3-428d-b445-68093e8c7387" message="Fetch employee by id flow started: #[attributes.queryParams.empid]"/>
+		<db:select doc:name="Fetch Employee By Id" doc:id="8be5ed2d-b01d-46b5-a0a9-e8f79d4c2df7" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from emp where emp_id = :empid]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"empid":attributes.queryParams.empid
+}]]]></db:input-parameters>
+		</db:select>
+		<logger level="INFO" doc:name="Logger" doc:id="fae4b8cf-cc7b-41fa-b251-f2a2866f4f8f" message="Fetched Employee :#[payload[0].EMP_NAME]"/>
+		<ee:transform doc:name="Transform Message" doc:id="35aac2df-01b9-44a1-bc93-5ff5e99a0db7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	emp_id: payload[0].EMP_ID default 0,
+	emp_name: payload[0].EMP_NAME default "",
+	emp_status: payload[0].EMP_STATUS default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

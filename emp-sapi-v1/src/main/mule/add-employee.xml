@@ -23,7 +23,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
  "emp_status":payload.status
 }]]]></db:input-parameters>
 		</db:insert>
-		<ee:transform doc:name="Response" doc:id="5d9548b0-1093-4b67-baa1-7a74dc8e3dc1" >
+		<ee:transform doc:name="Response Message" doc:id="5d9548b0-1093-4b67-baa1-7a74dc8e3dc1" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
