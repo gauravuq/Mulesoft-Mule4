@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.mycompany</groupId>
-	<artifactId>jms-app</artifactId>
+	<artifactId>jms-push-operations</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>mule-application</packaging>
 
-	<name>jms-app</name>
+	<name>jms-push-operations</name>
 
     <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -29,15 +29,15 @@
 				<artifactId>mule-maven-plugin</artifactId>
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
-            <configuration>
-                    <sharedLibraries>
+				<configuration>
+				<sharedLibraries>
                         <sharedLibrary>
                             <groupId>org.apache.activemq</groupId>
                             <artifactId>activemq-all</artifactId>
                         </sharedLibrary>
                     </sharedLibraries>
                 </configuration>
-            </plugin>
+			</plugin>
 		</plugins>
 	</build>
 

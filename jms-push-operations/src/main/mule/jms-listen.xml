@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<flow name="jms-listenFlow" doc:id="db9ab517-3d97-4e8a-ad78-4e0f6fe5c7a4" >
+		<jms:listener doc:name="Listener" doc:id="c6fd5e0e-b7f4-4655-8ed3-3fa049a87efd" config-ref="JMS_Config" destination="Q.FSD.EMP">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="9ea247fd-7764-4a5c-9757-56361c48aaf9" message="Payload read from JMS Queue : #[payload]"/>
+	</flow>
+</mule>

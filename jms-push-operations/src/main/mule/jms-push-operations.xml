@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="f0e3054a-4df1-4fd3-b670-4f8ab8de9eba" basePath="jms-api" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="e8e96e12-8e7e-4fa4-a5f2-7e02e6de9a1b" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:32768" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<flow name="jms-push-operationsFlow" doc:id="2c512ed7-44ff-47c2-9e83-e493b9d8834e" >
+		<http:listener doc:name="Push emp to Queue" doc:id="4de064b7-ed4a-4565-a841-1abac3f9ce14" config-ref="HTTP_Listener_config" path="add-employee" outputMimeType="application/json" allowedMethods="POST"/>
+		<logger level="INFO" doc:name="Logger" doc:id="5fcb59bd-68fa-4571-8032-a85de245f43f" message="Add employee flow started : #[payload]"/>
+		<jms:publish doc:name="Publish" doc:id="f3f1443c-4447-43e0-b8eb-b2ad6808a510" config-ref="JMS_Config" destination="Q.FSD.EMP"/>
+	</flow>
+</mule>

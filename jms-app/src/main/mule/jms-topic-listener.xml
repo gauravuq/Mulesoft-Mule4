@@ -7,7 +7,7 @@ http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/
 	<flow name="jms-topic-Flow" doc:id="38328c06-0402-4ecb-af42-e63806312037" >
 		<jms:listener doc:name="Topic Listener" doc:id="a00a580e-2f3f-4afa-b1db-5c6d7b34cd95" config-ref="JMS_Config" destination="T.FSD.EMP" ackMode="AUTO" numberOfConsumers="1">
 			<jms:consumer-type >
-				<jms:topic-consumer/>
+				<jms:topic-consumer />
 			</jms:consumer-type>
 		</jms:listener>
 		<logger level="INFO" doc:name="Logger" doc:id="e3581a30-df75-43a5-95b8-f4038bfd05b9" message="#[payload]"/>

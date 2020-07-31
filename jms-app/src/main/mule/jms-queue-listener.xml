@@ -9,7 +9,7 @@ http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/
 			<jms:caching-strategy >
 				<jms:no-caching />
 			</jms:caching-strategy>
-			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+			<jms:factory-configuration brokerUrl="tcp://localhost:32768" />
 		</jms:active-mq-connection>
 	</jms:config>
 	<flow name="jms-queue-appFlow" doc:id="6c00fbda-6d55-442f-8101-9fd2ed47b32f" >
