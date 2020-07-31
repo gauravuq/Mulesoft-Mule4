@@ -19,6 +19,16 @@ type responseArray = Array<{|  emp_id: Number {"typeId": "int"},   emp_name: Str
 
 ]]></types:shape>
     </types:type>
+    <types:type name="SuccessResponse" format="json">
+      <types:shape format="weave" example="examples/JsonExampleResponseFileSuccess.json"><![CDATA[%dw 2.0
+
+type SuccessResponse = {|
+  status: String, 
+  message: String
+|} {"example": "{\\\"status\\\":\\\"200\\\",\\\"message\\\":\\\"Success -Deleted\\\"}"}
+
+]]></types:shape>
+    </types:type>
   </types:catalog>
   <types:enrichment select="#35aac2df-01b9-44a1-bc93-5ff5e99a0db7">
     <types:processor-declaration>
@@ -34,6 +44,15 @@ type responseArray = Array<{|  emp_id: Number {"typeId": "int"},   emp_name: Str
       <types:output-event>
         <types:message>
           <types:payload type="responseArray"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#ed41da8b-5d87-41cf-939a-e8891d9bcd09">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="SuccessResponse"/>
         </types:message>
       </types:output-event>
     </types:processor-declaration>
