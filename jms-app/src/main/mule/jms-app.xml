@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<jms:config name="JMS_Config" doc:name="JMS_Config" doc:id="aab6f658-337d-4726-be07-36bbd333daed" sendCorrelationId="NEVER">
+		<jms:active-mq-connection username="admin" password="admin" specification="JMS_1_0_2b">
+			<jms:caching-strategy >
+				<jms:no-caching />
+			</jms:caching-strategy>
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<flow name="jms-queue-appFlow" doc:id="6c00fbda-6d55-442f-8101-9fd2ed47b32f" >
+		<jms:listener doc:name="Queue Listener" doc:id="ce68cb44-7abe-4c34-aebb-6daf43e28479" config-ref="JMS_Config" destination="Q.FSD.EMP">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="f35be88e-35a9-4084-bab0-e9c9ab6d20d1" message="#[payload]"/>
+	</flow>
+</mule>
