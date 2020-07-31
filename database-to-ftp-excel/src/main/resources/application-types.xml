@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="ExcelResponse" format="excel">
+      <types:shape format="weave"><![CDATA[%dw 2.0
+
+type ExcelResponse = {|
+  employeeData?: Array<{|    id: String,     name: String,     status: String  |}>
+|}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#f05f753c-433a-4fe5-9a1a-c48d00587312">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="ExcelResponse"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

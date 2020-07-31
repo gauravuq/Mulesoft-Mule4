@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="aacffe72-485f-464b-a07a-16cf55d88a6c" >
+		<db:oracle-connection host="localhost" user="sys as sysdba" password="Oradoc_db1" instance="ORCLCDB" />
+	</db:config>
+	<ftp:config name="FTP_Config" doc:name="FTP Config" doc:id="7190958d-78c6-4170-bbfe-9e7812788de2" >
+		<ftp:connection workingDir="/" host="localhost" username="ftpuser" password="ftpuser" />
+	</ftp:config>
+	<flow name="database-to-ftp-excelFlow" doc:id="5cee6156-2599-49fb-a6e8-11315f95323b" >
+		<scheduler doc:name="Scheduler" doc:id="150f3ca4-2ef2-4b58-b588-5bf31497a69c" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" startDelay="1" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<db:select doc:name="Select" doc:id="5756da14-d6cc-4ce0-bed5-d20f9b27072c" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from emp]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="f05f753c-433a-4fe5-9a1a-c48d00587312" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xlsx
+---
+{
+	employeeData: payload map ( payload01 , indexOfPayload01 ) -> {
+		id: payload01.EMP_ID as String,
+		name: payload01.EMP_NAME,
+		status: payload01.EMP_STATUS
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ftp:write doc:name="Write" doc:id="8a454a8e-78a8-460f-9eac-f5309205df68" config-ref="FTP_Config" path="EmployeeDBData.xlsx"/>
+	</flow>
+</mule>
