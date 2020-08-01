@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="InputCSV" format="csv">
+      <types:shape format="weave"><![CDATA[%dw 2.0
+
+type InputCSV = Array<{|  id: Number,   name: String,   sal: Number,   address: String,   phone: String,   email: String|}> {"isQuotedString": "false",
+"header": "true",
+"headerLineNumber": "0"}
+
+]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+      </types:properties>
+    </types:type>
+    <types:type name="DatabaseJson" format="json">
+      <types:shape format="weave" example="examples/JsonExampleEmployee_Master-1.json"><![CDATA[%dw 2.0
+
+type DatabaseJson = Array<{|  EMP_ID: Number {"typeId": "int"},   EMP_NAME: String,   EMP_SAL: Number {"typeId": "int"},   EMP_ADDRESS: String,   EMP_PHONE: String,   EMP_EMAIL: String|}> {"example": "[{\\\"EMP_ID\\\":1,\\\"EMP_NAME\\\":\\\"\\\",\\\"EMP_SAL\\\":1,\\\"EMP_ADDRESS\\\":\\\"\\\",\\\"EMP_PHONE\\\":\\\"\\\",\\\"EMP_EMAIL\\\":\\\"\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#6b59dc84-5be6-4cc0-b0df-2e129c82cc31">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="InputCSV"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="DatabaseJson"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

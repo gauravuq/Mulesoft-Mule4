@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<file:config name="File_Config" doc:name="File Config" doc:id="338c13b1-d22f-4063-99d9-3861f5db6089" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="1311c862-2e01-4fb1-912e-c9b5c1ed43f8" >
+		<db:oracle-connection host="localhost" user="sys as sysdba" password="Oradoc_db1" instance="ORCLCDB"/>
+	</db:config>
+	<flow name="emp-csv-databaseFlow" doc:id="c5f4edae-69e6-4b1c-a9bf-4752a16a0116" >
+		<scheduler doc:name="Scheduler" doc:id="5e9042af-ee5e-4b5d-a127-cbfb22265b37" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<file:read doc:name="Read CSV" doc:id="716f460d-01fa-45cb-b7d0-9aa380ec3740" config-ref="File_Config" path="/home/gaurav/Desktop/COURSES/MULE 4/Employee_Master.csv"/>
+		<logger level="INFO" doc:name="Logger" doc:id="adda3a95-c4bc-4ed7-ad73-59a12dd6c5c7" message="The read Payload from the csv is #[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="6b59dc84-5be6-4cc0-b0df-2e129c82cc31" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	EMP_ID: payload01.id,
+	EMP_NAME: payload01.name,
+	EMP_SAL: payload01.sal,
+	EMP_ADDRESS: payload01.address,
+	EMP_PHONE: payload01.phone,
+	EMP_EMAIL: payload01.email
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:bulk-insert doc:name="Bulk insert" doc:id="c44ea31d-8c23-47c7-95e0-52baeb6e3f12" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into emp_master (EMP_ID,EMP_NAME,EMP_SAL,EMP_ADDRESS,EMP_PHONE,EMP_EMAIL) values(:EMP_ID,:EMP_NAME,:EMP_SAL,:EMP_ADDRESS,:EMP_PHONE,:EMP_EMAIL) ]]></db:sql>
+		</db:bulk-insert>
+		<logger level="INFO" doc:name="Logger" doc:id="be1ea60c-5759-4760-a6dc-d72018d681ac" message="Count : #[payload]"/>
+	</flow>
+</mule>
