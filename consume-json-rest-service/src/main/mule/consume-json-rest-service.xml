@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="248fe6ac-123e-42ab-85a3-2b4d6c195e73" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="9e304965-d677-4703-bf4b-3481a6e7b9eb" >
+		<db:oracle-connection host="localhost" user="sys as sysdba" password="Oradoc_db1" instance="ORCLCDB" />
+	</db:config>
+	<http:request-config name="HTTP_Request_configuration_2" doc:name="HTTP Request configuration" doc:id="64175404-9a23-4f21-903a-3a82f88c678c" >
+		<http:request-connection host="localhost" port="8082" />
+	</http:request-config>
+	<flow name="consume-json-rest-serviceFlow" doc:id="b47bc590-c912-45d3-801b-14c41ffa2bea" >
+		<http:listener doc:name="Listener" doc:id="d69b2a91-1f41-4d5b-9d2e-71e00e064657" config-ref="HTTP_Listener_config" path="onboard/create-employee" allowedMethods="POST"/>
+		<logger level="INFO" doc:name="Logger" doc:id="318497eb-aee7-4147-9ef7-571acefae722" message="Started the onboard process of an employee : #[payload]"/>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="91ae99cb-60f7-48bb-8d65-f333e8de2d87" variableName="empPayload"/>
+		<db:insert doc:name="Insert" doc:id="4f9f6b4e-7b55-4b08-8955-b3e836c488f3" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into emp_master (emp_id,emp_name,emp_sal,emp_address,emp_phone,emp_email) values (:emp_id,:emp_name,:emp_sal,:emp_address,:emp_phone,:emp_email)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+emp_id: payload.emp.emp_id
+,emp_name:payload.emp.emp_name
+,emp_sal: payload.emp.emp_sal
+,emp_address:payload.emp.emp_address
+,emp_phone:payload.emp.emp_phone
+,emp_email:payload.emp.emp_email
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="c9fe19cc-bc88-468c-8a54-9218de73d674" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	emp: {
+		EMP_ID: vars.empPayload.emp.emp_id,
+		EMP_NAME: vars.empPayload.emp.emp_name,
+		EMP_SAL: vars.empPayload.emp.emp_sal
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request" doc:id="05399395-4757-4eb0-ad2b-96f5b8c1caa8" config-ref="HTTP_Request_configuration_2" path="finance/add-details"/>
+	</flow>
+</mule>

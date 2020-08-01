@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="bf645601-7e86-4aaa-9c2a-b7e21775bf56" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<flow name="SampleFinanceServiceFlow" doc:id="632dd1b3-777e-46eb-8575-12d1016df80f" >
+		<http:listener doc:name="Listener" doc:id="54b119b9-b67a-47d4-9aa2-4ab844e48f1b" config-ref="HTTP_Listener_config1" path="finance/add-details"/>
+		<logger level="INFO" doc:name="Logger" doc:id="563f15fd-e51f-4aff-ae81-157e80e9e526" message="Payload from Main service : #[payload]"/>
+	</flow>
+</mule>
