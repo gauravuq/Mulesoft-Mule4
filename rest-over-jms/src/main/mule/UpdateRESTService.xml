@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="ff3bda2a-922a-455a-a19f-ff84978e4936" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="9edbcca6-2b80-4063-ba7e-a799bee9756e" >
+		<db:oracle-connection host="localhost" user="sys as sysdba" password="Oradoc_db1" instance="ORCLCDB" />
+	</db:config>
+	<flow name="UpdateRESTServiceFlow" doc:id="be2c0cfe-5ee3-4775-99a2-82f19d65dbbc" >
+		<http:listener doc:name="Listener" doc:id="d0f117f9-84a5-4965-b300-42d142d57275" config-ref="HTTP_Listener_config" path="/update-salary" outputMimeType="application/xml" allowedMethods="POST"/>
+		<logger level="INFO" doc:name="Logger" doc:id="2fdedabb-fcdb-41e1-a268-86aa5ce00a26" message="Started Flow of updating employee's salary: #[payload]"/>
+		<db:update doc:name="Update" doc:id="8cdd5364-3b99-4d3a-9367-c96cc17b83b8" config-ref="Database_Config">
+			<db:sql ><![CDATA[update emp_master set emp_sal=:emp_sal where emp_id = :emp_id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	emp_sal:payload.emp.empsal,
+	emp_id : payload.emp.empid
+}]]]></db:input-parameters>
+		</db:update>
+		<logger level="INFO" doc:name="Logger" doc:id="e7a100e7-82de-4c45-a114-14bbdc872735" message="Ending Flow of updating employee's salary: #[payload.affectedRows]"/>
+		<ee:transform doc:name="Transform Message" doc:id="0b469ba2-dde1-439d-a20f-f7de3dddb2f4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+{
+	response:{
+		message:"Success"
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

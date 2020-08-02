@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="54985f14-8d76-43bb-8abd-6da3f44a44bc" contentType="application/json">
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:32768" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="9b05d369-bbfc-474c-b110-c3d6ddabf18a" >
+		<http:request-connection host="localhost" port="8082" />
+	</http:request-config>
+	<flow name="rest-over-jmsFlow" doc:id="3aba8430-082a-4330-abdd-dd580e768695" >
+		<jms:listener doc:name="Q.FSD.EMP Listener" doc:id="62ab65c4-9edb-4f56-ba2f-be9cc91aa491" config-ref="JMS_Config" destination="Q.FSD.EMP">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="bc81cd37-6c0c-4b99-be96-454657d91d5b" message="Started Rest over JMS Flow : #[payload]"/>
+		<ee:transform doc:name="Update Salary" doc:id="3b3c9eb9-0551-45f7-a41d-7a8aed249201" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+{
+	emp: {
+		empid: payload.empid,
+		empsal: payload.empsal
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request" doc:id="f461b69d-b420-4482-9615-b7d843874e3c" config-ref="HTTP_Request_configuration" path="/update-salary" />
+		<logger level="INFO" doc:name="End Logger" doc:id="f4ef2b93-2095-47cf-aa92-789ee049f8f0" message="Completed Rest over Jms Flow: #[payload]"/>
+	</flow>
+</mule>
