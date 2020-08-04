@@ -15,7 +15,7 @@
 ## App9 - Playing with REST Request Connector by dumping data from one REST service to another REST Service  - consume-json-rest-service.
 ## App10 -rest-over-jms
 * **Playing with JMS Connector by dumping data from one ActiveMQ JMS Queue to a another REST Service which updates employee data using xml payload**
-* **Cosuming Rest Service to delete an Employee using URI Parameters**
+* **Cosuming Rest Service to delete an Employee using URI Parameters by using Choice **
 * **{more to come}**
 
 ####  REST Codes : https://www.restapitutorial.com/httpstatuscodes.html
