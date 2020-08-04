@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_1" doc:name="HTTP Request configuration" doc:id="c317c561-ae02-4c47-b5a2-aace170dbdfb" >
+		<http:request-connection host="localhost" port="8083" />
+	</http:request-config>
+	<flow name="DeleteEmpServiceFlow" doc:id="473ba5c2-cee2-4822-9438-021edcf95206" >
+		<http:listener doc:name="Listener" doc:id="1b4cc42b-536a-4b61-9692-0c59327a4d3a" config-ref="HTTP_Listener_config_1" path="onboard/delete-employee" outputMimeType="application/json" allowedMethods="POST"/>
+		<logger level="INFO" doc:name="Logger" doc:id="bac4b8d2-5697-460e-8bc1-0ce4ae07a89f" message="Started the delete employee flow : #[payload]"/>
+		<set-variable value="#[payload.EmployeeID]" doc:name="Set Variable" doc:id="ebb14665-6508-4f4b-bc8e-9567540f655c" variableName="employeeId"/>
+		<db:update doc:name="Update The Employee Status" doc:id="f43263bd-a495-4a5c-ae8d-847150f40f26" config-ref="Database_Config">
+			<db:sql ><![CDATA[update emp_master set emp_status= :emp_status where emp_id = :emp_id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	emp_status: payload.status,
+	emp_id: payload.EmployeeID
+}]]]></db:input-parameters>
+		</db:update>
+		<logger level="INFO" doc:name="How many Rows Updated?" doc:id="677b110b-c69e-40c7-b148-e8f704e8509a" message="Rows Updated: #[payload.affectedRows]"/>
+		<choice doc:name="Choice" doc:id="4bc76790-bc3f-42b8-84b1-d94932cd3b58" >
+			<when expression="#[payload.affectedRows &gt; 0]">
+				<http:request method="GET" doc:name="Request" doc:id="ec4ffa5f-2c50-49eb-965d-8e87944102b6" config-ref="HTTP_Request_1" path="emp-sapi/delete-employee/{empid}">
+					<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"empid" : vars.employeeId
+}]]]></http:uri-params>
+				</http:request>
+				<logger level="INFO" doc:name="Response from the Delete Service" doc:id="46a2d95e-b988-4d60-b62e-a4c794597f98" message="Response from the Delete Service : #[payload]"/>
+				<ee:transform doc:name="Transform Message" doc:id="c285b5a3-c529-4e12-ade6-115fa17f9f6b" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	Status:200,
+	Message:"Success"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="dc2e88b2-a003-4cb7-8392-005894183c59" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message": "Employee Not Found"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

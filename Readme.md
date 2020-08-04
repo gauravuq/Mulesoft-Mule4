@@ -13,6 +13,9 @@
 ## App7 - Playing with FTP Connector Operations with VSFTP by dumping data from database to an excel file - database-to-ftp-excel.
 ## App8 - Playing with FILE Connector Operations by dumping data from a csv file to database in bulk using a Schedulor  - emp-csv-database.
 ## App9 - Playing with REST Request Connector by dumping data from one REST service to another REST Service  - consume-json-rest-service.
-## App10 - Playing with JMS Connector by dumping data from one ActiveMQ JMS Queue to a another REST Service which updates employee data using xml payload  - rest-over-jms
+## App10 -rest-over-jms
+* **Playing with JMS Connector by dumping data from one ActiveMQ JMS Queue to a another REST Service which updates employee data using xml payload**
+* **Cosuming Rest Service to delete an Employee using URI Parameters**
+* **{more to come}**
 
 ####  REST Codes : https://www.restapitutorial.com/httpstatuscodes.html

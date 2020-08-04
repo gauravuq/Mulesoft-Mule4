@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config_2" doc:name="HTTP Listener config" doc:id="7769852d-9c2d-4dfc-8cf3-e621b66f9f5f" >
+		<http:listener-connection host="0.0.0.0" port="8083" />
+	</http:listener-config>
+	<flow name="delete-employeeFlow" doc:id="5f09402a-534b-4afe-928c-d9062428aefe" >
+		<http:listener doc:name="Delete Employee Listener" doc:id="d95d28f4-249a-4041-bb4b-6a29c4b34c9a" config-ref="HTTP_Listener_config_2" path="emp-sapi/delete-employee/{empid}"/>
+		<logger level="INFO" doc:name="Logger" doc:id="d0740158-b6e8-4243-9947-04db19dd97fa" message="Started Delete Employee Flow for Id : #[attributes.uriParams.empid]"/>
+		<db:delete doc:name="Delete Employee by Id" doc:id="2a1d5140-75cd-4d75-8714-d6c0343b9eaf" config-ref="Database_Config">
+			<db:sql ><![CDATA[delete from emp where emp_id = :empid]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	empid:attributes.uriParams.empid
+}]]]></db:input-parameters>
+		</db:delete>
+		<ee:transform doc:name="Response Message" doc:id="ed41da8b-5d87-41cf-939a-e8891d9bcd09" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	
+	"status":"200",
+	"message":"Success -Deleted"
+
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

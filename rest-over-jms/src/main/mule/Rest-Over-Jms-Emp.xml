@@ -34,7 +34,7 @@ output application/xml
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<http:request method="POST" doc:name="Request" doc:id="f461b69d-b420-4482-9615-b7d843874e3c" config-ref="HTTP_Request_configuration" path="/update-salary" />
+		<http:request method="POST" doc:name="Request" doc:id="f461b69d-b420-4482-9615-b7d843874e3c" config-ref="HTTP_Request_configuration" path="onboard/update-salary" />
 		<logger level="INFO" doc:name="End Logger" doc:id="f4ef2b93-2095-47cf-aa92-789ee049f8f0" message="Completed Rest over Jms Flow: #[payload]"/>
 	</flow>
 </mule>
