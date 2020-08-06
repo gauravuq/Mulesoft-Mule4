@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="cd051e6c-8300-4e82-8e5e-92b98d6f2f00" file="${env}.yaml" />
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="5cccc405-9d00-4e5a-b9d6-84498e5deb4d" >
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
+	</http:listener-config>
+	<flow name="prop-demoFlow" doc:id="b9c60194-fe7e-4118-b7aa-91234a90cb68" >
+		<http:listener doc:name="Listener" doc:id="dde23f18-e8e6-40ea-a608-824a444a1eba" config-ref="HTTP_Listener_config" path="${http.path}"/>
+		<logger level="INFO" doc:name="Logger" doc:id="b6b2af75-495d-4005-bdd6-53706a2d8233" message="DataBase UserName is : ${db.username}"/>
+	</flow>
+</mule>

@@ -1,0 +1,8 @@
+http:
+  port: "8081"
+  path: "secure-prop"
+db:
+  host: "localhost"
+  port: "1521" 
+  username: "sys as sysdba of DEV" 
+  password: "![D+Ob+yV3SBIhxatuLkrc9Q==]"

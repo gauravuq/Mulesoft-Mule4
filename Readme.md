@@ -16,6 +16,8 @@
 ## App10 -rest-over-jms
 * **Playing with JMS Connector by dumping data from one ActiveMQ JMS Queue to a another REST Service which updates employee data using xml payload**
 * **Cosuming Rest Service to delete an Employee using URI Parameters by using Choice**
-* **{more to come}**
+## App11 - Using per environment property file for deployment to a particular environment - prop-demo
+## App12 - Using per environment property file for deployment to a particular environment using Mule Secure Configuration Module - secure-prop-demo
+* **hiding passwords of different connector configuration using a key**
 
 ####  REST Codes : https://www.restapitutorial.com/httpstatuscodes.html
