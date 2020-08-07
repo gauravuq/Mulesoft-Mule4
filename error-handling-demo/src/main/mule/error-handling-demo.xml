@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="44565045-c481-4a39-a00d-ea0a76e0eee6" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="c3a2d017-070a-4890-b36f-e0d8c8445821" >
+		<db:oracle-connection host="localhost" user="sys as sysdba" password="Oradoc_db1" instance="ORCLCDB" />
+	</db:config>
+	<flow name="error-handling-demoFlow" doc:id="517497d6-5b9b-4262-ab00-23e8d2fcc348" >
+		<http:listener doc:name="Listener for Request" doc:id="3976021f-13b8-4baa-aef4-c97b12ccdb6c" config-ref="HTTP_Listener_config" path="fetch-employee">
+			<http:error-response statusCode="#[vars.statusCode]" reasonPhrase="#[vars.reasonPhrase]" >
+				<http:body ><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<validation:is-number numberType="INTEGER" doc:name="Is Employee id a number ?" doc:id="ad9541bd-22f9-4388-b4f8-233d4ecf2261" value="#[attributes.queryParams.empid]" message="Empid should be a number">
+		</validation:is-number>
+		<db:select doc:name="Select an employee" doc:id="6f1752b0-4249-40f5-8abc-afcb6c385216" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from emp_master where emp_id =:emp_id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	emp_id:attributes.queryParams.empid
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="c5f9936a-9ca1-4737-b385-5ca1fd9e0fa8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	EmployeeID:payload[0].emp_id,
+	EmployeeName: payload[0].emp_name,
+	Status: payload[0].emp_status
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3b15e984-1a67-4a4b-ade0-0c3b17a05a82" type="VALIDATION:INVALID_NUMBER">
+				<ee:transform doc:name="Transform Message" doc:id="0f39de4b-0e15-441f-9e19-fa6ab6dd6fa0" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+---
+{
+	Status: 400,
+	Message: error.description
+	
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="statusCode" ><![CDATA[400]]></ee:set-variable>
+						<ee:set-variable variableName="errorPhrase" ><![CDATA["Bad Request"]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Any Error Propagate" doc:id="56c62f5f-c9e2-4f7c-a9c4-7ece57e67866" type="DB:BAD_SQL_SYNTAX, DB:CONNECTIVITY, DB:QUERY_EXECUTION, EXPRESSION, STREAM_MAXIMUM_SIZE_EXCEEDED">
+				<ee:transform doc:name="Transform Message" doc:id="32d05a65-8e4c-41d2-b261-156d9a987e78" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+---
+{
+	Status: 500,
+	Message: error.description
+	
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="statusCode" ><![CDATA[500]]></ee:set-variable>
+						<ee:set-variable variableName="errorPhrase" ><![CDATA["Server Error"]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
