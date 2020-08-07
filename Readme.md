@@ -19,6 +19,6 @@
 ## App11 - Using per environment property file for deployment to a particular environment - prop-demo
 ## App12 - Using per environment property file for deployment to a particular environment using Mule Secure Configuration Module - secure-prop-demo
 * **hiding passwords of different connector configuration using a key**
-## App13 - Demostrating Error handling when Business Requirements are not fullfilled using "On Error Propogate" by which we can handle any kind of error for any kind of connector through Http Listener - error-handling-demo.
+## App13 - Demonstrating Error handling when Business Requirements are not fullfilled using "On Error Propogate" by which we can handle any kind of error for any kind of connector through Http Listener - error-handling-demo.
 
 ####  REST Codes : https://www.restapitutorial.com/httpstatuscodes.html
