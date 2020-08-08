@@ -1,35 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
-	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="44565045-c481-4a39-a00d-ea0a76e0eee6" >
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<http:listener-config name="HTTP_Listener_config_0" doc:name="HTTP Listener config" doc:id="44565045-c481-4a39-a00d-ea0a76e0eee6" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
 	<db:config name="Database_Config" doc:name="Database Config" doc:id="c3a2d017-070a-4890-b36f-e0d8c8445821" >
 		<db:oracle-connection host="localhost" user="sys as sysdba" password="Oradoc_db1" instance="ORCLCDB" />
 	</db:config>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="11a97829-75f9-4d29-b0e9-fc165aec2dcd" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:32768" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<configuration doc:name="Configuration" doc:id="c442d1bc-481c-4a44-97a7-9951cdf6759c" defaultErrorHandler-ref="Global-Error-HandlerError_Handler" />
 	<flow name="error-handling-demoFlow" doc:id="517497d6-5b9b-4262-ab00-23e8d2fcc348" >
-		<http:listener doc:name="Listener for Request" doc:id="3976021f-13b8-4baa-aef4-c97b12ccdb6c" config-ref="HTTP_Listener_config" path="fetch-employee">
+		<http:listener doc:name="Listener for Request" doc:id="3976021f-13b8-4baa-aef4-c97b12ccdb6c" config-ref="HTTP_Listener_config_0" path="fetch-employee">
 			<http:error-response statusCode="#[vars.statusCode]" reasonPhrase="#[vars.reasonPhrase]" >
 				<http:body ><![CDATA[#[payload]]]></http:body>
 			</http:error-response>
 		</http:listener>
 		<validation:is-number numberType="INTEGER" doc:name="Is Employee id a number ?" doc:id="ad9541bd-22f9-4388-b4f8-233d4ecf2261" value="#[attributes.queryParams.empid]" message="Empid should be a number">
 		</validation:is-number>
+		<flow-ref doc:name="Flow Reference" doc:id="d62ade0e-b5ba-4e08-be5a-cda94652b7c5" name="error-handling-demoSub_Flow"/>
+		<logger level="INFO" doc:name="Logger" doc:id="c775a0ec-5eee-481e-8b0d-04c4c59114c9" message="Requested emp Id is :  #[attributes.queryParams.empid]"/>
 		<db:select doc:name="Select an employee" doc:id="6f1752b0-4249-40f5-8abc-afcb6c385216" config-ref="Database_Config">
 			<db:sql ><![CDATA[select * from emp_master where emp_id =:emp_id]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{
 	emp_id:attributes.queryParams.empid
 }]]]></db:input-parameters>
 		</db:select>
-		<ee:transform doc:name="Transform Message" doc:id="c5f9936a-9ca1-4737-b385-5ca1fd9e0fa8" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+		<choice doc:name="Choice" doc:id="6232f84f-9e8d-491e-bcf4-362aa60b5265" >
+			<when expression="#[sizeOf(payload)&gt;0]">
+				<ee:transform doc:name="Transform Message" doc:id="c5f9936a-9ca1-4737-b385-5ca1fd9e0fa8">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
@@ -39,45 +50,24 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<error-handler >
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3b15e984-1a67-4a4b-ade0-0c3b17a05a82" type="VALIDATION:INVALID_NUMBER">
-				<ee:transform doc:name="Transform Message" doc:id="0f39de4b-0e15-441f-9e19-fa6ab6dd6fa0" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
-
----
-{
-	Status: 400,
-	Message: error.description
-	
-}]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="statusCode" ><![CDATA[400]]></ee:set-variable>
-						<ee:set-variable variableName="errorPhrase" ><![CDATA["Bad Request"]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-			</on-error-propagate>
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Any Error Propagate" doc:id="56c62f5f-c9e2-4f7c-a9c4-7ece57e67866" type="DB:BAD_SQL_SYNTAX, DB:CONNECTIVITY, DB:QUERY_EXECUTION, EXPRESSION, STREAM_MAXIMUM_SIZE_EXCEEDED">
-				<ee:transform doc:name="Transform Message" doc:id="32d05a65-8e4c-41d2-b261-156d9a987e78" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
-
----
-{
-	Status: 500,
-	Message: error.description
-	
-}]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="statusCode" ><![CDATA[500]]></ee:set-variable>
-						<ee:set-variable variableName="errorPhrase" ><![CDATA["Server Error"]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-			</on-error-propagate>
-		</error-handler>
+			</when>
+			<otherwise >
+				<raise-error doc:name="Raise error" doc:id="c2cc83d5-c974-4eb8-b0dc-7976f6fe4dd2" type="EMP:EMLPOYEE_NOT_FOUND"/>
+			</otherwise>
+		</choice>
 	</flow>
+	<sub-flow name="error-handling-demoSub_Flow" doc:id="73af45c3-8411-47c4-9500-846559f4e965" >
+		<try doc:name="Try" doc:id="76e93d2e-cee8-48f5-b74e-b2366366e9f1" >
+			<jms:publish doc:name="Publish" doc:id="efe05705-9a3d-42dc-9cfe-64b24b2b52d1" config-ref="JMS_Config" destination="Q.FSD.EMP">
+			<jms:message>
+				<jms:body><![CDATA[#[attributes.queryParams.empid]]]></jms:body>
+			</jms:message>
+		</jms:publish>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="bc8dd3e5-2bc0-47cf-9715-75826f349a56" type="JMS:CONNECTIVITY, JMS:DESTINATION_NOT_FOUND, JMS:ILLEGAL_BODY, JMS:PUBLISHING, JMS:RETRY_EXHAUSTED, JMS:SECURITY">
+					<logger level="INFO" doc:name="Logger" doc:id="d992bad7-e613-4e37-bfa5-4cf05635b4d2" message="Jms is Down" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+	</sub-flow>
 </mule>
