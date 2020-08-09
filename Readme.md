@@ -23,6 +23,6 @@
 * **On Error Propogate**
 * **On Error Continue**
 * **Raise Error**
-* **Global Error Handler**
-
+* **Error Handler for a project**
+### APP14 - RAML Specification for a project - emp-onboard-sapi.raml
 ####  REST Codes : https://www.restapitutorial.com/httpstatuscodes.html

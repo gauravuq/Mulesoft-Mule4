@@ -1,0 +1,123 @@
+#%RAML 1.0
+title: emp-onboard-api
+description: Employee onboarding api specification.
+baseUri: https://localhost:8080/emp-onboard-api/v1
+/add-employee:
+  description: Add new Employees one by one 
+  post:
+    body:
+      application/json:
+        example:
+          {
+            "emp-name": "Gaurav",
+            "status": "A"
+          }
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              {
+                "status":200,
+                "message":"Success"
+              }
+      500:
+        body:
+          application/xml:
+            example:
+              {
+                "status":500,
+                "message":"Internal Server Error"
+              }
+/update-employee:
+  description: Update Employee one at a time
+  put:
+    body:
+      application/xml:
+        example:
+          <?xml version="1.0" encoding="UTF-8"?>
+          <emp>
+            <empid>3</empid>
+            <status>I</status>
+          </emp>
+    responses:
+      201:
+        body:
+          application/xml:
+            example:
+               <?xml version="1.0" encoding="UTF-8"?>
+               <response>
+                  <status>201</status>
+                <message>Success</message>
+               </response>
+      500:
+        body:
+          application/xml:
+            example:
+              <?xml version="1.0" encoding="UTF-8"?>
+               <response>
+                  <status>500</status>
+                <message>Internal Server Error</message>
+               </response>
+/fetch-employee:
+  get:
+    queryParameters:
+      empid:
+        displayName: empid
+        required: true
+        type: number
+        example: 
+          value: 1
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+               {
+                "emp-name": "Gaurav",
+                "status": "A"
+               }
+      404:
+        body:
+          application/json:
+            example:
+               {
+                "status":404,
+                "message":"No Employee Found"
+              }
+      500:
+        body:
+          application/xml:
+            example:
+              {
+                "status":500,
+                "message":"Internal Server Error"
+              }
+/delete-employee:
+  /{employeeID}:
+    delete:
+      description: Delete an employee
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                {
+                  "status":200,
+                  "message":"Success"
+                }
+        500:
+          body:
+            application/xml:
+              example:
+                {
+                  "status":500,
+                  "message":"Internal Server Error"
+                }
+          
+
+    
+      
+
+              
+      
