@@ -1,0 +1,8 @@
+#%RAML 1.0 Trait
+  usage: Apply the Triat to ensure that the client is sending unique transaction id's for end to end tracking
+  headers:
+     x-transaction-id:
+        description: transaction - id
+        type: string
+        example: "213sfsadf-12312sadf-3123sdfasd"
+        required: false

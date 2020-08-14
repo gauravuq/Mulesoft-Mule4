@@ -1,0 +1,1 @@
+{"main":"emp-hr-sapi.raml","name":"emp-hr-schema","classifier":"raml","tags":[],"dependencies":[{"groupId":"de528170-86e3-409f-98f7-9a05311643d8","assetId":"transaction-header","version":"1.0.0"},{"groupId":"de528170-86e3-409f-98f7-9a05311643d8","assetId":"oauth20","version":"1.0.0"}]}

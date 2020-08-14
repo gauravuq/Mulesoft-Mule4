@@ -1,0 +1,58 @@
+#%RAML 1.0 Library
+usage: emp hr api data types
+types:
+  CreateEmployeeRequestType:
+    description: create employee request payload type
+    type: object
+    properties:
+      empID:
+        description: employee identification id
+        type: integer
+        required: true
+        example: 1
+      empName:
+        description: employee name
+        type: string
+        required: true
+        example: "Gaurav"
+      empAddress:
+        description: employee address
+        type: string
+        required: false
+        example: "Australia"
+      empStatus:
+        description: employee status at the company 
+        type: string
+        required: false
+        example: "A"
+  CreateEmployeeResponseType:
+    description:  create employee response type
+    type: object
+    properties:
+      code:
+        description: HTTP Response Status Code
+        type: integer
+        required: true
+        example: 201
+      message:
+        description: HTTP Response Message
+        type: string
+        required: true
+        example: "Created"
+      description:
+        description: Description of the response
+        type: string
+        required: false
+        example: "Employee created"
+      datetime:
+        description: Date time of the event 
+        type: string
+        required: false
+        example: "10/10/2020 14:12"
+      transactionId:
+        description: TransactionId of the response
+        type: string
+        required: false
+        example: "213sfsadf-12312sadf-3123sdfasd"
+      
+          

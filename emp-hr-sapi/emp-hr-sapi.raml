@@ -1,0 +1,54 @@
+#%RAML 1.0
+title: emp-hr-sapi
+description: To add Employee to HR system
+version: v1
+baseUri: http://{environment}/emp-hr-sapi/{version}
+baseUriParameters:
+  environment:
+    description: dev,test,load,prod
+    enum: [fsd-dev-emp-hr-sapi.us-e2.cloudhub.io,fsd-test-emp-hr-sapi.us-e2.cloudhub.io,fsd-load-emp-hr-sapi.us-e2.cloudhub.io,fsd-prod-emp-hr-sapi.us-e2.cloudhub.io]
+securitySchemes:
+  oauth-schema: !include /exchange_modules/de528170-86e3-409f-98f7-9a05311643d8/oauth20/1.0.0/oauth2.0.raml
+securedBy: [oauth-schema]
+traits:
+  transaction-header: !include /exchange_modules/de528170-86e3-409f-98f7-9a05311643d8/transaction-header/1.0.0/transaction-header.raml
+uses:
+  ehsat: DataTypes/emp-hr-sapi-api-types.raml
+/create-employee:
+  post:
+    is: [transaction-header]
+    description: To add employee to the system
+    body:
+      application/json:
+        type: ehsat.CreateEmployeeRequestType
+        example: !include Examples/Create-Employee-Request.raml
+        
+    responses:
+      201:
+        body:
+          application/json:
+            type: ehsat.CreateEmployeeResponseType
+            example: !include Examples/Create-Employee-Response.raml
+             
+      400:
+        body:
+          application/json:
+            example:
+              {
+                  "code":400,
+                  "message":"Bad request",
+                  "description":"Invalid Input payload",
+                  "datetime":"10/10/2020 14:12",
+                  "transactionId":"213sfsadf-12312sadf-3123sdfasd"
+              }
+      500:
+        body:
+          application/json:
+            example:
+              {
+                  "code":500,
+                  "message":"Internal Server Error",
+                  "description":"Please Reach out to the support team",
+                  "datetime":"10/10/2020 14:12",
+                  "transactionId":"213sfsadf-12312sadf-3123sdfasd"
+              }
