@@ -1,0 +1,13 @@
+{
+	"item":{
+	"type":"book",
+	"price":"30",
+	"properties":{
+		"title":"DoomsDay",
+		"author":["LAURA D.D"],
+		"year":"2020",
+		"language":"us"
+		}
+	}	
+
+}
