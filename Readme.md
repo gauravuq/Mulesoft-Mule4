@@ -31,7 +31,9 @@
 	* **APIkit Router**
 	* **Separate Implementation Modules per call type using Flow references**
 ### APP16 - Fragfmented RAML Specification for a project -emp-hr-sapi
-### APP17 - Sample SOAP Service - soap-service
+### APP17 - Sample Provider SOAP Service - soap-service
 	* **The difference compared to REST service is that rather than using apikit router we use soap router**
+### APP18 - Sample Consumer SOAP Service - ws-consumer-demo
+	* **we are consuming a soap service and applying transformation on the final result**
 
 ####  REST Codes : https://www.restapitutorial.com/httpstatuscodes.html

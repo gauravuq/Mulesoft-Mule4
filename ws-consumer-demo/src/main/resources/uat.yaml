@@ -1,0 +1,5 @@
+calc:
+  wsdl: ""
+  port: ""
+  service: ""
+  keystorelocation: "keystore/uat-keystire.jks"
