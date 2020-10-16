@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="TimeConversionsFlow" doc:id="8125bc67-e493-43fe-b28a-5ba077427417" >
+		<ee:transform doc:name="Transform Message" doc:id="39945c17-7c41-45dc-88ce-7cb0cf209305" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"todayDate":now() as Date,
+	"todayTime":now() as Time,
+	"todayDateFormatted": now() as Date {format: "YYYY-MM-dd"}, // just change the format and then assign
+	"todayTimeFormatted": now() as Time {format: "hh-mm"},
+	"UTCTIME" : now() >> "UTC", // change the time to(>>) utc and then assign
+	"ISTTIME": now() >> "IST",
+	"UTCToIST": ((now() >> "UTC") >> "IST") as DateTime {format:"YYYY-MMM-dd hh:ss:SSS"},
+	"LondonTime" :(now () >> "Europe/London") as DateTime {format:"YYYY-MMM-dd HH:ss"}
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

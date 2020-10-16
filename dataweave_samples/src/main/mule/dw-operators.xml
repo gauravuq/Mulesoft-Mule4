@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="dw-operatorsFlow" doc:id="b347e2f2-1b74-4cc4-b2c3-9b226944fadb" >
+		<ee:transform doc:name="Transform Message" doc:id="e462714a-2f87-429a-bf41-039f340bba92" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var firstNumber= 10
+var secondNumber=20
+var firstName="Gaurav"
+var secondName="Sood"
+var empNameArray= ["Gaurav","Amit", "Shakti"]
+var empObject = {
+	"empID":12312,
+	"empName":"Gaurav",
+	"empStatus":"A"
+}
+var empList =[
+	{
+		"empID":12312,
+	"empName":"Gaurav",
+	"empStatus":"A"
+	},{
+		"empID":1111,
+	"empName":"Amit",
+	"empStatus":"A"
+	}
+]
+---
+[
+	airthemeticOperators:{
+		"addition":firstNumber + secondNumber,
+		"division": firstNumber/secondNumber,
+		"multiplication":firstNumber *secondNumber,
+		"subtraction":firstNumber - secondNumber
+	},comparisonOperators:{
+		equaltoo:firstNumber == secondNumber,
+		lessthan: firstNumber < secondNumber,
+		greaterthan: firstNumber>secondNumber,
+		notequalto: firstNumber != secondNumber,
+		lessThanEqualToo: firstNumber<=secondNumber,
+		greaterThanEqualToo: firstNumber >=secondNumber
+	},++operators:{
+		fullname: firstName ++" "++ secondName,
+		empNames: empNameArray ++ ["LOL"],
+		empPayload:empObject ++ {empsalary: 123123},
+		empList : empList ++ [{
+	"empID":12312123,
+	"empName":"Shakti",
+	"empStatus":"A"
+		}]
+		
+	}
+	
+]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

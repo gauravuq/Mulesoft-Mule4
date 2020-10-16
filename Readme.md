@@ -35,5 +35,10 @@
 * The difference compared to REST service is that rather than using apikit router we use soap router
 ### APP18 - Sample Consumer SOAP Service - ws-consumer-demo
 * We are consuming a soap service and applying transformation on the final result
+### APP19 - DataWeave Operations
+* DW-Time-Conversions
+* DW-Operators
+* DW-DataTypes & Variables
+* DW-Type-Coercions
 
 ####  REST Codes : https://www.restapitutorial.com/httpstatuscodes.html

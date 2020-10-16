@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="dw-datatypes-variablesFlow" doc:id="3f8297c5-b375-455a-871c-adddf0e80ded" >
+		<ee:transform doc:name="Transform Message" doc:id="ec1470cc-e045-41ab-a075-7c2296e3e0a3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var surname="Sood"
+var empExtraDetails={
+	passportNumer:1231231,
+	activityStatus: "Active"
+}
+---
+{
+	First_Name:"Gaurav" as String,
+	Salary:12312 as Number,
+	Staus: false as Boolean,
+	Last_Name: surname,
+	EmpExtraDetails:empExtraDetails
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
