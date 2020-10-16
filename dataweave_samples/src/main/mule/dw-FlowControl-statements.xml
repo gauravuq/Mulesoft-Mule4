@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="dw-FlowControl-statementsFlow" doc:id="81299e5e-6ff9-441d-96db-0dc63b160642" >
+		<ee:transform doc:name="Transform Message" doc:id="7385702c-9462-46a8-8f43-d2905b8944ef" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var country = "India"
+var showValue= true
+---
+// Object level if conditions
+if (country =="USA")
+{
+	country: country,
+	class: "First"
+} else
+{
+	// Field level if conditions
+	country: "India",
+	class: "First",
+	valueToBeShown: if (showValue ==true) "shown" else "notshow"
+}
+// Field level if conditions]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

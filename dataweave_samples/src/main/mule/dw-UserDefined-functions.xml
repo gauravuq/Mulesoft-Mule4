@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="dw-UserDefined-functionsFlow" doc:id="9e53cee3-707a-43e5-b32d-2c9ace0a8473" >
+		<ee:transform doc:name="UserDefined Functions" doc:id="594cf4f6-8b01-43d8-9d37-4d6b3d213f8b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+var valueToBeShown = null
+fun calcExperience(input1)= daysBetween(|2016-03-03|,input1)/2
+---
+{
+	value1: calcExperience(now()),
+	(value2: valueToBeShown) if (valueToBeShown != null)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
