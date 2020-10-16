@@ -40,5 +40,7 @@
 * DW-Operators
 * DW-DataTypes & Variables
 * DW-Type-Coercions
+* DW-Inbuilt-Functions
+* DW-UserDefined-Functions
 
 ####  REST Codes : https://www.restapitutorial.com/httpstatuscodes.html
