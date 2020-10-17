@@ -4,7 +4,7 @@
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-	<flow name="dw-Inbuilt-functionsFlow" doc:id="bc545ff4-a449-47ff-a909-c1b48505ffa1" >
+	<flow name="dw-Inbuilt-functions-Date" doc:id="bc545ff4-a449-47ff-a909-c1b48505ffa1" >
 		<ee:transform doc:name="Date Inbuilt Functions" doc:id="62007736-a778-4755-bc85-cddc07a08b64" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -27,6 +27,96 @@ output application/json
 	dayoftheWeek: now().dayOfWeek,
 	dayoftheYear: now().dayOfYear
 	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="dw-Inbuilt-functions-Math" doc:id="c50dfbf8-fafe-4801-9b82-510e0f1debd3" >
+		<ee:transform doc:name="Math Inbuilt Functions" doc:id="959c5a44-8d24-43ca-8b6f-3bd242c3fc99" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"absolute function": abs(2.3),
+	"avg function": avg([1,2,3]),
+	"ceil function":ceil(1.4),
+	"floor function":floor(1.4),
+	"round function":round (1.5),
+	"min function":min([1,2,3,4]),
+	"max function":max([1,2,3,4,5]),
+	"min by function for object collection":[{a:1},{a:2},{a:3}] minBy ((item) ->item.a ),
+	"max by function for object collection":[{e:1},{e:3},{e:2}] maxBy ((item) ->item.e ),
+	"isOdd function":isOdd(2),
+	"isEven function":isEven(2),
+	"isInteger function":isInteger(3),
+	"isDecimal function":isDecimal(3.5)
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="dw-Inbuilt-functions-OfFunctions" doc:id="6372f72e-fdb7-4b25-a74f-86384733f3c0" >
+		<ee:transform doc:name="Transform Message" doc:id="eef63d38-775b-42f0-aab2-8bf39feaafab" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var empName ="Gaurav"
+var empSkills = [1,2] as Array
+var empObject = {
+	empname: "gaurav",
+	empstatus: "active",
+	empdob: "June 4, 1964"
+}
+var empObjectList =[{
+	empname: "gaurav",
+	empstatus: "active",
+	empdob: "June 4, 1964"
+},
+{
+	empname: "gaurav",
+	empstatus: "active",
+	empdob: "June 4, 1964"
+},
+{
+	empname: "gaurav",
+	empstatus: "active",
+	empdob: "June 4, 1964"
+}]
+---
+{
+	"FieldLevel":sizeOf(empName),
+	"Array Level":sizeOf(empSkills),
+	"Object Level Field;":sizeOf(empObject),
+	"Object Level list":sizeOf(empObjectList),
+	"namesOf":namesOf(empObject),
+	"enteriesOf":entriesOf(empObject),
+	"keysOf":keysOf(empObject),
+	"valuesOf":valuesOf(empObject)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="dw-Inbuilt-functions-Strings" doc:id="0c7c3d02-fb7b-4998-84b8-c03727776c62" >
+		<ee:transform doc:name="String Inbuilt Functions" doc:id="62656d87-f45d-4e1d-8647-346c5cdd339d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"arraylength": sizeOf([1,23,4,4]) as Number default 0,
+	"contains": "mulesoft" contains "soft",
+	"isBlank":isBlank("lol"),
+	"isEmptyArray":isEmpty([1,2,3,40]),
+	"isEmptyString":isEmpty(""),
+	"lower":lower("Gaurav"),
+	"upper":upper("gaurav"),
+	"matches":"s@safsda.com" matches ("[a-z]*@[a-z]*.com"),
+	"replace":"admin123" replace "admin" with "ID",
+	"splitby":"1,2,3,4,4" splitBy  ",",
+	"startwith":"Gaurav" startsWith  "G",
+	"endwith":"Gaurav" endsWith "v",
+	"trim": trim(" sdfsdf adfasdafasdasdf asdfsdafassfsa sfsd")
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
