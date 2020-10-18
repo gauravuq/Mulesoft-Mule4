@@ -45,5 +45,6 @@
 	* String Functions
 	* Size of functions
 * DW-UserDefined-Functions
+* DW- Map, Map Object, Filter & Filter Object functions.
 
 ####  REST Codes : https://www.restapitutorial.com/httpstatuscodes.html
