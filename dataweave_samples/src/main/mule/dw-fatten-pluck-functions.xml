@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="dw-fatten-Function-Flow" doc:id="91055fb5-d523-43c2-890a-84fe4e3f7762" >
+		<ee:transform doc:name="Transform Message" doc:id="37c429e6-ff29-4cd5-b314-bc0822002c31" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var emplist = [{
+	"empId": 1,
+	"empName": "Gaurav",
+	"empStatus": "A"
+},
+        {
+	"empId": 2,
+	"empName": "Amit",
+	"empStatus": "A"
+},
+        {
+	"empId": 3,
+	"empName": "Shakti",
+	"empStatus": "A"
+}, 
+        [{
+	"empId": 3,
+	"empName": "Shakti",
+	"empStatus": "A"
+}]]
+---
+// array inside array flattened to one array of emp objects
+	flatten(emplist)
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="dw-pluck-Function-Flow" doc:id="503d163c-765c-47ae-86d0-34e7693fdef8" >
+		<ee:transform doc:name="Transform Message" doc:id="52d2aec2-d3bf-4ae2-a019-b1e4371142bf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+  var emp = {
+        "empId": 1,
+        "empName": "Gaurav",
+        "empStatus": "A"
+        }
+---
+{
+	"keysPlucked" : emp pluck ((value, key, index) -> key ),
+	"valuesPlucked" : emp pluck ((value, key, index) -> value ),
+	"indexPlucked" : emp pluck ((value, key, index) -> index )
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

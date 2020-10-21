@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="06c189ba-e91f-4ef6-bae1-f2386573b452" basePath="employee">
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config_Oracle" doc:name="Database Config" doc:id="689b5887-70e3-4e2d-b6ab-e49e76cb4763" >
+		<db:oracle-connection host="localhost" user="sys as sysdba" password="Oradoc_db1" instance="ORCLCDB"/>
+	</db:config>
+	<sub-flow name="Insert_SubFlow" doc:id="9f14a26e-60a5-4066-a884-f01bcebd782a" >
+		<try doc:name="Try" doc:id="ed54c314-abf2-43b4-ad08-98e75c628f45" >
+			<until-successful maxRetries="2" doc:name="Until Successful" doc:id="1d752d16-c1e0-4d40-adcc-185e7f01245a" millisBetweenRetries="5000">
+				<db:insert doc:name="Insert" doc:id="ef755b73-68da-42f2-88a9-f23dbd532055" config-ref="Database_Config_Oracle">
+			<db:sql><![CDATA[insert into emp (emp_id, emp_name, emp_status) values (:empId, :empName, :empStatus)]]></db:sql>
+			<db:parameter-types />
+			<db:input-parameters><![CDATA[#[{
+	empId: payload.empId,
+	empName: payload.empName,
+	empStatus: payload.empStatus
+}]]]></db:input-parameters>
+		</db:insert>
+		</until-successful>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c84d0637-56ca-43a4-b325-6ac7219829fe" type="ANY">
+					<logger level="INFO" doc:name="Logger" doc:id="24b521af-1d2e-4221-8020-36bd426e3aeb" message="#[error]"/>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+	</sub-flow>
+	<flow name="mule-scope-demoFlow" doc:id="0d48aa66-cdfb-45d5-a409-4836800b8d1d" >
+		<http:listener doc:name="Listener" doc:id="c00a6b40-2c98-4971-94e6-4b26f89b6457" config-ref="HTTP_Listener_config" path="/add/" allowedMethods="POST">
+			<http:error-response >
+				<http:body ><![CDATA[#[output application/json 
+--- 
+{message:vars.message,
+	statusCode:vars.statuscode 
+}]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="70c81b84-1eca-4a37-b157-58b6f33417c5" message=" Employee payload recieved&lt;===&gt; #[payload]"/>
+		<async doc:name="Async" doc:id="796a9116-3f74-4887-b62f-befbc65cba73" >
+			<logger level="INFO" doc:name="Logger" doc:id="2aa0413b-4234-4af1-835a-db320887943a" message="I am in async flow which will execute in parallel"/>
+			<set-payload value="I am setting the payload here , but it will not override the main entry point payload of the main flow" doc:name="Set Payload" doc:id="889b8b61-c78c-446f-b7d6-b1c6a18a150f" />
+		</async>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="c72471e1-a660-4328-bc6a-8175390de7fe" variableName="employee_payload_insert "/>
+		<flow-ref doc:name="Insert_SubFlow_Flow_Reference" doc:id="796e39a0-87a7-4b1e-91c1-94eadee54f7f" name="Insert_SubFlow" target="Flow_Reference_output"/>
+		<logger level="INFO" doc:name="Logger" doc:id="c8b41c05-2046-4220-be93-2e0ee38c9732" message="After insert payload&lt;===&gt; #[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="b75d1c58-1206-4511-bab5-2a6c564f80c5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+ 	message: "Created Employee",
+ 	code: 201
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="dd3eb561-9a2e-4413-893d-8534ad963f19" type="ANY">
+				<logger level="INFO" doc:name="Logger" doc:id="88e63d7e-f91a-4fe4-b044-0d9dcbb0712a" message="#[error]"/>
+				<ee:transform doc:name="Transform Message" doc:id="1951b9f4-2b95-4361-a5a5-9f4a0e393766" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="statusCode" ><![CDATA[500]]></ee:set-variable>
+						<ee:set-variable variableName="message" ><![CDATA[error.description]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

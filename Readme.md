@@ -46,5 +46,12 @@
 	* Size of functions
 * DW-UserDefined-Functions
 * DW- Map, Map Object, Filter & Filter Object functions.
+### APP20- Mule's Scopes - mule-scope-demo
+* Target Scope .
+* Aysnc Scope.
+* Try/Catch scope.
+        ** with on error continue.
+        ** with on error propogate.
+* Until Scope.
 
 ####  REST Codes : https://www.restapitutorial.com/httpstatuscodes.html
