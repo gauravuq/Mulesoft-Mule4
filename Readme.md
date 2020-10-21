@@ -50,8 +50,8 @@
 * Target Scope .
 * Aysnc Scope.
 * Try/Catch scope.
-        ** with on error continue.
-        ** with on error propogate.
+	* with on error continue.
+	* with on error propogate.
 * Until Scope.
 
 ####  REST Codes : https://www.restapitutorial.com/httpstatuscodes.html
