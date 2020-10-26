@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<http:listener-config name="HTTP_Listener_config_2" doc:name="HTTP Listener config" doc:id="266c34f0-2e01-4a68-b5b4-338da0eb3f70" basePath="employee" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<db:config name="Database_Config_2" doc:name="Database Config" doc:id="9ebdaa4d-0ada-4e2c-ace7-5bc93a1abf61" >
+		<db:oracle-connection host="localhost" user="sys as sysdba" password="Oradoc_db1" instance="ORCLCDB" />
+	</db:config>
+	<flow name="for-each-scopeFlow" doc:id="a54e3f52-6205-4c83-b125-901bb36a693e" >
+		<http:listener doc:name="Listener" doc:id="18d9e3d2-420e-4f42-885d-2d0b06b1f24f" config-ref="HTTP_Listener_config_2" path="/foreach"/>
+		<logger level="INFO" doc:name="Logger" doc:id="f08d909a-1bbd-4c79-9367-e71188ab9591" message="Start of the flow"/>
+		<ee:transform doc:name="empList" doc:id="5de6a07b-a02a-49e0-a347-bdac2c45507e" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="empList" ><![CDATA[%dw 2.0
+output application/java
+---
+[] as Array]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:select doc:name="Select" doc:id="5f4ece56-87f9-4c62-a6cf-354059ff1c09" config-ref="Database_Config_2">
+			<db:sql ><![CDATA[select emp_id from emp]]></db:sql>
+		</db:select>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="92e8827e-0222-45c1-9afc-c2b351178019" variableName="empListPayload"/>
+		<foreach doc:name="For Each" doc:id="6afde6ca-d3ff-45a3-8c70-474aec702591" collection="#[payload]">
+			<logger level="INFO" doc:name="Logger" doc:id="3a3db816-f395-4cab-a0a9-4dd25b9d9a16" message="#[payload]"/>
+			<try doc:name="Try" doc:id="c9550dcc-8e23-4fa7-996e-a826ea29db54" >
+				<http:request method="GET" doc:name="Request" doc:id="b39aaeec-9a81-4d9b-bc6f-26b7c0adb604" url="http://dummy.restapiexample.com/api/v1/employee/{emp_id}">
+				<http:uri-params><![CDATA[#[output application/java
+---
+{
+	emp_id : payload.emp_id
+}]]]></http:uri-params>
+			</http:request>
+				<logger level="INFO" doc:name=" After Resume Logger" doc:id="1c209b12-da1d-46d3-aab5-6d2336ece5ab" message="After Resume Logger"/>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4f8d20b5-10d0-4cb2-b03c-98bd79da1465" type="ANY" >
+						<logger level="INFO" doc:name="Error Logger" doc:id="a79c915a-90dd-4fb2-84b7-a6c4ed619764" message="On Error Continue Log"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+			<ee:transform doc:name="Transform Message" doc:id="4ce6862b-26f9-4223-9f17-6e734c9c37bc">
+			<ee:message>
+			</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="empList" ><![CDATA[%dw 2.0
+output application/java
+---
+flatten (vars.empList ++ [payload])]]></ee:set-variable>
+				</ee:variables>
+		</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="acf2e35c-dca5-450a-8b63-9c57f496256a" message="#[payload]"/>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="f3ff3e77-e9b9-43e5-b724-fab7d94b0817" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	Code: 200,
+	Message: "Success" ,
+	paylod: vars.empList
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="b18f1e41-1d3a-459b-af7d-20f34457b253" message="Completed Flow"/>
+	</flow>
+</mule>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config_4" doc:name="HTTP Listener config" doc:id="94e2ec80-839a-415b-a1da-7c557dc5c3c5" basePath="batch" >
+		<http:listener-connection host="0.0.0.0" port="8084" />
+	</http:listener-config>
+	<db:config name="Database_Config_4" doc:name="Database Config" doc:id="f05b99b1-04a0-412b-b3ed-fa9063021715" >
+		<db:oracle-connection host="localhost" user="sys as sysdba" password="Oradoc_db1" instance="ORCLCDB" />
+	</db:config>
+	<flow name="batch-demoFlow" doc:id="dcc1f8b0-6b83-45d7-9f2f-3df4889e201b" >
+		<http:listener doc:name="Listener" doc:id="e2c2ba94-8fa5-48fe-a948-c7bacc261eb8" config-ref="HTTP_Listener_config_4" path="for-each-demo"/>
+		<logger level="INFO" doc:name="Staring For Each bactch process of insert and update" doc:id="61b1c307-cc88-4ae0-af34-dbd27d0ec143" />
+		<db:select doc:name="Select from all master table: masterv2, fin,appr" doc:id="ee157ff1-bbdb-4079-a190-605c16f82b98" config-ref="Database_Config_4">
+			<db:sql ><![CDATA[select first.emp_id,
+first.emp_name,
+first.emp_status,
+third.emp_appr_year,
+third.emp_appr_per,
+second.emp_exp,
+second.emp_salary,
+second.emp_desg,
+second.emp_age
+from 
+emp_masterv2 first, emp_fin_master second, emp_appr_master third 
+where first.emp_id =  second.emp_id and first.emp_id = third.emp_id]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="making a variable for storing payload" doc:id="20cbdf94-565c-4b3d-b96e-519fd2d51de0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+fun increment_sal(item)= item.emp_salary * ((item.emp_appr_per+100)/100)
+---
+payload map(emp, index)->{
+emp_id:emp.emp_id,
+emp_name:emp.emp_name,
+emp_status:emp.emp_status,
+emp_appr_year:emp.emp_appr_year,
+emp_appr_per:emp.emp_appr_per,
+emp_exp:emp.emp_exp,
+emp_salary:increment_sal(emp),
+emp_desg:emp.emp_desg,
+emp_age:emp.emp_age,
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="empPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<foreach doc:name="For Each Batch operation for insertion and update" doc:id="00b79dd4-4af1-4091-9c90-b738a2fade24" collection="#[payload]" batchSize="2">
+			<logger level="INFO" doc:name="Logging batch payload" doc:id="caa18ddb-421f-4911-9040-12eb22ed416b" message="Payload Batch :===&gt;#[payload]"/>
+			<db:bulk-insert doc:name="Bulk insert to backup table " doc:id="1557a9b9-6111-45c2-89fb-df34e8db8b07" config-ref="Database_Config_4">
+				<db:sql ><![CDATA[insert into emp_backup (emp_id,
+emp_name ,
+emp_status ,
+emp_appr_year,
+emp_appr_per ,
+emp_exp ,
+emp_salary ,
+emp_desg,  
+emp_age ) values (:emp_id,
+:emp_name ,
+:emp_status ,
+:emp_appr_year,
+:emp_appr_per ,
+:emp_exp ,
+:emp_salary ,
+:emp_desg,  
+:emp_age )]]></db:sql>
+			</db:bulk-insert>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="68e06a63-fb08-4373-b10b-4f7bcaf8adcd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config_3" doc:name="HTTP Listener config" doc:id="db22ffbf-1cf9-4315-808a-b37680cec976" basePath="batch" >
+		<http:listener-connection host="0.0.0.0" port="8083" />
+	</http:listener-config>
+	<db:config name="Database_Config_3" doc:name="Database Config" doc:id="c859191b-ae83-4665-bb06-dca4f787b8fb" >
+		<db:oracle-connection host="localhost" user="sys as sysdba" password="Oradoc_db1" instance="ORCLCDB" />
+	</db:config>
+	<flow name="batch-demo-add-employeeFlow" doc:id="d1b6147b-da1a-4c9a-909f-78a663737475" >
+		<http:listener doc:name="Listener" doc:id="502765de-fa60-4ecc-8eae-5f8c773050f0" config-ref="HTTP_Listener_config_3" path="add-emp"/>
+		<logger level="INFO" doc:name="Logger" doc:id="710e51db-e59f-4612-9c28-b018b5cd3678" message="Adding employee detail for Batch Demo"/>
+		<scatter-gather doc:name="Scatter-Gather-Add-Employee-Details" doc:id="0c84ca4a-0f2d-454b-9acb-3874aa2fe7d1" >
+			<route >
+				<db:insert doc:name="Insert emp master" doc:id="1e897914-b6d7-48ea-bb53-4d571403b535" config-ref="Database_Config_3">
+					<db:sql ><![CDATA[insert into emp_masterv2(emp_id, emp_name, emp_status) values (:emp_id, :emp_name, :emp_status)]]></db:sql>
+					<db:input-parameters ><![CDATA[#[payload]]]></db:input-parameters>
+				</db:insert>
+			</route>
+			<route >
+				<db:insert doc:name="Insert emp fin " doc:id="adcc9563-4f0a-4185-ae03-35b29b0e2e76" config-ref="Database_Config_3">
+					<db:sql ><![CDATA[insert into emp_fin_master (emp_id, emp_exp, emp_salary,emp_desg, emp_age) values 
+(:emp_id, :emp_exp, :emp_salary, :emp_desg, :emp_age)]]></db:sql>
+					<db:input-parameters ><![CDATA[#[payload]]]></db:input-parameters>
+				</db:insert>
+			</route>
+			<route >
+				<db:insert doc:name="Insert emp appr" doc:id="84d59307-a834-4c4c-9ad4-87a016d707b8" config-ref="Database_Config_3">
+					<db:sql ><![CDATA[insert into emp_appr_master (emp_id,emp_appr_year, emp_appr_per) values(:emp_id,:emp_appr_year,:emp_appr_per)]]></db:sql>
+					<db:input-parameters ><![CDATA[#[payload]]]></db:input-parameters>
+				</db:insert>
+			</route>
+			<route >
+				<db:insert doc:name="Insert emp backup" doc:id="0d71c657-4f85-4593-9d24-bdfa39784bbb" config-ref="Database_Config_3">
+					<db:sql ><![CDATA[insert into emp_backup (emp_id,
+emp_name ,
+emp_status ,
+emp_appr_year,
+emp_appr_per ,
+emp_exp ,
+emp_salary ,
+emp_desg,  
+emp_age ) values (:emp_id,
+:emp_name ,
+:emp_status ,
+:emp_appr_year,
+:emp_appr_per ,
+:emp_exp ,
+:emp_salary ,
+:emp_desg,  
+:emp_age )]]></db:sql>
+					<db:input-parameters ><![CDATA[#[payload]]]></db:input-parameters>
+				</db:insert>
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Transform Message" doc:id="ee676d47-e073-447f-bcac-3b33ae33e422" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

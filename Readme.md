@@ -53,5 +53,8 @@
 	* with on error continue.
 	* with on error propogate.
 * Until Scope.
+* ForEach Batch Processing
+	* Scatter-Gather insert for multiple tables;
+	* Bulk inserts using Batch option of foreach 
 
 ####  REST Codes : https://www.restapitutorial.com/httpstatuscodes.html
