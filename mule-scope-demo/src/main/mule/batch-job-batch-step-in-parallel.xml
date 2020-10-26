@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:java="http://www.mulesoft.org/schema/mule/java"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="batch-job-batch-step-in-parallelFlow" doc:id="1e31862b-9cea-4bde-901d-136f058c560e" >
+		<http:listener doc:name="Listener" doc:id="367134fc-f079-4203-8803-bccf2f74d66b" config-ref="HTTP_Listener_config_4" path="batch-job-batch-step-in-parallel"/>
+		<logger level="INFO" doc:name="Logger" doc:id="0972a13f-5415-4952-a087-97f7d1f1ad47" message="Starting Batch job in parallel "/>
+		<db:select doc:name="Select from all master table: masterv2, fin,appr" doc:id="efabc787-d9df-4207-badf-30a7f6006982" config-ref="Database_Config_4" >
+			<db:sql ><![CDATA[select first.emp_id,
+first.emp_name,
+first.emp_status,
+third.emp_appr_year,
+third.emp_appr_per,
+second.emp_exp,
+second.emp_salary,
+second.emp_desg,
+second.emp_age
+from 
+emp_masterv2 first, emp_fin_master second, emp_appr_master third 
+where first.emp_id =  second.emp_id and first.emp_id = third.emp_id]]></db:sql>
+		</db:select>
+		<batch:job jobName="batch-job-batch-step-in-parallel" doc:id="09e0479b-ab3d-4724-82c4-428aa37d01ae" blockSize="2">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="7208d6c5-512b-4e7b-bfcc-46731722cd9a" >
+					<logger level="INFO" doc:name="Logger" doc:id="1e9f6f1b-c058-4ec8-b163-b4568cc9b624" message="firing batch step in parallel  #[payload]"/>
+					<ee:transform doc:name="Transform Message" doc:id="9e933fc7-c040-4a7d-9d65-5ef9ccded0b2" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+fun increment_sal(item)= item.emp_salary * ((item.EMP_APPR_PER + 100)/100)
+---
+{
+emp_id:payload.emp_id,
+emp_name:payload.emp_name,
+emp_status:payload.emp_status,
+emp_appr_year:payload.emp_appr_year,
+emp_appr_per:payload.emp_appr_per,
+emp_exp:payload.emp_exp,
+emp_salary:increment_sal(payload),
+emp_desg:payload.emp_desg,
+emp_age:payload.emp_age,
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<db:insert doc:name="Insert into emp backup table " doc:id="7661b9c1-6d39-4d16-b26d-4547fe40e4f8" config-ref="Database_Config_4">
+						<db:sql ><![CDATA[insert into emp_backup (emp_id,
+emp_name ,
+emp_status ,
+emp_appr_year,
+emp_appr_per ,
+emp_exp ,
+emp_salary ,
+emp_desg,  
+emp_age ) values (:emp_id,
+:emp_name ,
+:emp_status ,
+:emp_appr_year,
+:emp_appr_per ,
+:emp_exp ,
+:emp_salary ,
+:emp_desg,  
+:emp_age )]]></db:sql>
+						<db:input-parameters ><![CDATA[#[payload]]]></db:input-parameters>
+					</db:insert>
+				</batch:step>
+			</batch:process-records>
+		</batch:job>
+	</flow>
+</mule>

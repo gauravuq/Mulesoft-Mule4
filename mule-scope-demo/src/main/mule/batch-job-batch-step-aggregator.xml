@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="batch-job-batch-step-aggregatorFlow" doc:id="2d2cafe8-1cf6-44ed-bde5-200b22ba5b65" >
+		<http:listener doc:name="Listener" doc:id="694685f9-be61-4ba9-a661-9273120c0fe3" config-ref="HTTP_Listener_config_4" path="batch-job-batch-step-batch-aggregator"/>
+		<logger level="INFO" doc:name="Logger" doc:id="70216bb7-c35a-4640-95ba-b6636b02139e" message="Starting Batch job in aggregator mode "/>
+		<db:select doc:name="Copy_of_Select from all master table: masterv2, fin,appr" doc:id="9910ba4a-0040-4c18-a937-81dd1f86f3fe" config-ref="Database_Config_4" >
+			<db:sql ><![CDATA[select first.emp_id,
+first.emp_name,
+first.emp_status,
+third.emp_appr_year,
+third.emp_appr_per,
+second.emp_exp,
+second.emp_salary,
+second.emp_desg,
+second.emp_age
+from 
+emp_masterv2 first, emp_fin_master second, emp_appr_master third 
+where first.emp_id =  second.emp_id and first.emp_id = third.emp_id]]></db:sql>
+		</db:select>
+		<batch:job jobName="batch-job-batch-step-aggregator" doc:id="30c5b1d8-e5c3-458d-8363-4e3356c9a9b9" blockSize="4">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="a1e7c2d8-11b2-4081-b0ba-5057e1beb17e" >
+					<ee:transform doc:name="Copy_of_making a variable for storing payload" doc:id="7334f966-5e03-4fe3-a59f-537c1e7ac188">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+fun increment_sal(item)= item.emp_salary * ((item.emp_appr_per +100)/100)
+---
+{
+emp_id:payload.emp_id,
+emp_name:payload.emp_name,
+emp_status:payload.emp_status,
+emp_appr_year:payload.emp_appr_year,
+emp_appr_per:payload.emp_appr_per,
+emp_exp:payload.emp_exp,
+emp_salary:increment_sal(payload),
+emp_desg:payload.emp_desg,
+emp_age:payload.emp_age,
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="empPayload"><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="248214ea-6e36-4119-abac-44ff597b3f86" streaming="true">
+						<logger level="INFO" doc:name="Logger" doc:id="9e4b51a1-260e-408a-b86a-097982ee382b" message="I got this payload from the left side: #[payload]"/>
+						<db:bulk-insert doc:name="Copy_of_Bulk insert to backup table " doc:id="1066eb68-b9cc-4962-8141-636bb74429a8" config-ref="Database_Config_4" >
+							<db:sql ><![CDATA[insert into emp_backup (emp_id,
+emp_name ,
+emp_status ,
+emp_appr_year,
+emp_appr_per ,
+emp_exp ,
+emp_salary ,
+emp_desg,  
+emp_age ) values (:emp_id,
+:emp_name ,
+:emp_status ,
+:emp_appr_year,
+:emp_appr_per ,
+:emp_exp ,
+:emp_salary ,
+:emp_desg,  
+:emp_age )]]></db:sql>
+						</db:bulk-insert>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger On Complete" doc:id="f4ca7263-4501-4be1-bc6b-38da8b845007" message="Payload ====&gt; #[payload]"/>
+			</batch:on-complete>
+		</batch:job>
+	</flow>
+</mule>

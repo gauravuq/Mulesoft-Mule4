@@ -56,5 +56,8 @@
 * ForEach Batch Processing
 	* Scatter-Gather insert for multiple tables;
 	* Bulk inserts using Batch option of foreach 
+* Batch Job Connector processing
+	* Using Batch Step with only processor.
+	* Using Batch Step with prcessor and Aggregator(Streaming or aggregator size).
 
 ####  REST Codes : https://www.restapitutorial.com/httpstatuscodes.html
