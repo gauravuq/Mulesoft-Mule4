@@ -53,10 +53,10 @@
 	* with on error continue.
 	* with on error propogate.
 * Until Scope.
-* ForEach Batch Processing
+* ForEach Batch Processing (Synchronous with the main flow)
 	* Scatter-Gather insert for multiple tables;
 	* Bulk inserts using Batch option of foreach 
-* Batch Job Connector processing
+* Batch Job Connector processing (Asynchronous with the main flow)
 	* Using Batch Step with only processor.
 	* Using Batch Step with prcessor and Aggregator(Streaming or aggregator size).
 
